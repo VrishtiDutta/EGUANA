@@ -1,0 +1,53 @@
+close all
+%
+f='folha';
+pos='xyz';
+method={'GOLD', 'RAF','WMR','SSR'};
+barh=-15:0.1:15;
+TableR=zeros(4,9);
+
+
+%%bloco residual
+
+%Gold method
+
+%position x
+for p=1:3
+%% Inicializing
+baras=zeros(1,301); 
+%% Reading
+% sensor10
+EnameR=['D:\JawAnalysis\rafael', method(m) '10' pos(p)];
+EnameC=['D:\JawAnalysis\rafael', method(m) '10' pos(p)];
+baras=baras+sum(xlsread(EnameR,f,'AG1:AS301'),2)+...
+      sum(xlsread(EnameR,f,'AU1:AX301'),2);
+baras=baras+sum(xlsread(EnameC,f,'C1:E301'),2)+...
+            sum(xlsread(EnameC,f,'G1:N301'),2);
+%sensor9
+EnameR=['D:\JawAnalysis\rafael', method(m) '9' pos(p)];
+EnameC=['D:\JawAnalysis\rafael', method(m) '9' pos(p)];
+baras=baras+sum(xlsread(EnameR,f,'AG1:AS301'),2)+...
+      sum(xlsread(EnameR,f,'AU1:AX301'),2);
+baras=baras+sum(xlsread(EnameC,f,'C1:E301'),2)+...
+            sum(xlsread(EnameC,f,'G1:N301'),2);
+        
+baras=baras+sum(xlsread('D:\JawAnalysis\rafaelGOLD9x',f,'AG1:AS301'),2)+...
+      sum(xlsread('D:\JawAnalysis\rafaelGOLD9x',f,'AU1:AX301'),2);
+baras=baras+sum(xlsread('D:\JawAnalysis\chrisGOLD9x',f,'C1:E301'),2)+...
+            sum(xlsread('D:\JawAnalysis\chrisGOLD9x',f,'G1:N301'),2);
+
+%% Quantification
+cumbaras=cumsum(baras);
+cumbaras=cumbaras/max(cumbaras);
+figure, bar(cumbaras);
+
+% Quartil Range
+TablesR(m,3*(p-1)+1)=min(barh(cumbaras>=0.75))-max(barh(cumbaras<=0.25));
+% Percentil Range
+Tables(m,3*(p-1)+2)=min(barh(cumbaras>=0.95))-max(barh(cumbaras<=0.05));
+% Worst Case
+Tables(m,3*(p-1)+3)=max([abs(min(barh(cumbaras==1))),abs(min(barh(cumbaras~=0)))]);
+end
+
+
+

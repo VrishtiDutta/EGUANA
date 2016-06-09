@@ -1,0 +1,55 @@
+function [sel]=hurstmethodssel
+
+%Rafael Henriques 
+
+%inicialization
+hfig=figure;
+sel=1;
+
+
+set(hfig,'color',[0.8 0.8 0.8],'name','Hurst Methods',...
+'Units','normalized','position',...
+[0.35,0.35,0.3,0.3]);
+   
+uipanel('Title','Methods','FontSize',12,...
+    'BackgroundColor',[0.93 0.93 0.93],'Units','Normalized',...
+    'Position',[.1 .1 .8 .8],'HighlightColor','b',...
+    'ForegroundColor','b');
+
+uicontrol('Units','Normalized','Position',[0.3,0.7,0.3,0.08],...
+    'String','Hurst Estimation','Callback',{@sel1});
+
+uicontrol('Units','Normalized','Position',[0.3,0.7,0.3,0.08],...
+    'String','Dave DFA','Callback',{@sel2});
+
+uicontrol('Units','Normalized','Position',[0.3,0.7,0.3,0.08],...
+    'String','FAST DFA','Callback',{@sel3});
+
+uicontrol('Units','Normalized','Position',[0.3,0.7,0.3,0.08],...
+    'String','SDA','Callback',{@sel4});
+
+    function sel1(source, eventdata)
+        sel=1;
+        uiresume(hfig);
+        close(hfig);
+    end
+
+    function sel2(source, eventdata)
+        sel=2;
+        uiresume(hfig);
+        close(hfig);
+    end
+    function sel3(source, eventdata)
+        sel=3;
+        uiresume(hfig);
+        close(hfig);
+    end
+    function sel4(source, eventdata)
+        sel=4;
+        uiresume(hfig);
+        close(hfig);
+    end
+
+uiwait(hfig)
+
+end

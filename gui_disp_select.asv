@@ -1,0 +1,279 @@
+function varargout = gui_disp_select(varargin)
+% GUI_DISP_SELECT M-file for gui_disp_select.fig
+%      GUI_DISP_SELECT, by itself, creates a new GUI_DISP_SELECT or raises the existing
+%      singleton*.
+%
+%      H = GUI_DISP_SELECT returns the handle to a new GUI_DISP_SELECT or the handle to
+%      the existing singleton*.
+%
+%      GUI_DISP_SELECT('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in GUI_DISP_SELECT.M with the given input arguments.
+%
+%      GUI_DISP_SELECT('Property','Value',...) creates a new GUI_DISP_SELECT or raises the
+%      existing singleton*.  Starting from the left, property value pairs are
+%      applied to the GUI before gui_disp_select_OpeningFunction gets called.  An
+%      unrecognized property name or invalid value makes property application
+%      stop.  All inputs are passed to gui_disp_select_OpeningFcn via varargin.
+%
+%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%      instance to run (singleton)".
+%
+% See also: GUIDE, GUIDATA, GUIHANDLES
+
+% Edit the above text to modify the response to help gui_disp_select
+
+% Last Modified by GUIDE v2.5 09-Apr-2009 11:27:24
+
+% Begin initialization code - DO NOT EDIT
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @gui_disp_select_OpeningFcn, ...
+                   'gui_OutputFcn',  @gui_disp_select_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+
+% --- Executes just before gui_disp_select is made visible.
+function gui_disp_select_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to gui_disp_select (see VARARGIN)
+
+data3d = varargin{1};
+handles.x3d = data3d.x3d;
+handles.y3d = data3d.y3d;
+handles.z3d = data3d.z3d;
+
+% Choose default command line output for gui_disp_select
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes gui_disp_select wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = gui_disp_select_OutputFcn(hObject, eventdata, handles) 
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+
+function ch1_Callback(hObject, eventdata, handles)
+% hObject    handle to ch1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ch1 as text
+%        str2double(get(hObject,'String')) returns contents of ch1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ch1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ch1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function ch2_Callback(hObject, eventdata, handles)
+% hObject    handle to ch2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ch2 as text
+%        str2double(get(hObject,'String')) returns contents of ch2 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ch2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ch2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function ch3_Callback(hObject, eventdata, handles)
+% hObject    handle to ch3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ch3 as text
+%        str2double(get(hObject,'String')) returns contents of ch3 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ch3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ch3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function ch4_Callback(hObject, eventdata, handles)
+% hObject    handle to ch4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ch4 as text
+%        str2double(get(hObject,'String')) returns contents of ch4 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ch4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ch4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function snam = get_name(ch);
+switch ch
+    case 1
+        snam = '1 td';
+    case 2
+        snam = '2 tb';
+    case 3
+        snam = '3 tt';
+    case 5
+        snam = '5 nose';
+    case 6
+        snam = '6 ul';
+    case 7
+        snam = '7 ll';
+    case 8
+        snam = '8 jaw';
+    case 9 
+        snam = '9 lc';
+    case 10
+        snam = '10 rc';
+    case 11
+        snam = '11 ear';
+end
+
+
+
+
+% --- Executes on button press in go_ana.
+function go_ana_Callback(hObject, eventdata, handles)
+% hObject    handle to go_ana (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+goahead = 1;
+a = get(handles.ch1,'string');
+b = get(handles.ch2,'string');
+c = get(handles.ch3,'string');
+d = get(handles.ch4,'string');
+
+sa = str2num(a);
+if isempty(sa)==0 
+    s(1) = sa;
+else
+    goahead = 0;
+end
+sa = str2num(b);
+if isempty(sa)==0 
+    s(2) = sa;
+else
+    goahead = 0;
+end
+sa = str2num(c);
+if isempty(sa)==0 
+    s(3) = sa;
+else
+    goahead = 0;
+end
+sa = str2num(d);
+if isempty(sa)==0 
+    s(4) = sa;
+else
+    goahead = 0;
+end
+
+if goahead == 1
+
+    switch(s(1))
+        case {1,2,3,5,6,7,8,9,10,11}
+        otherwise
+            goahead = 0;
+    end
+    switch(s(2))
+        case {1,2,3,5,6,7,8,9,10,11}
+        otherwise
+            goahead = 0;
+    end
+    switch(s(3))
+        case {1,2,3,5,6,7,8,9,10,11}
+        otherwise
+            goahead = 0;
+    end
+    switch(s(4))
+        case {1,2,3,5,6,7,8,9,10,11}
+        otherwise
+          goahead = 0;
+    end
+end
+if goahead == 0
+    errordlg('Please choose 4 channels from: 1, 2, 3, 5, 6, 7, 8, 9, 10, 11');
+else
+    sig1 = handles.x3d(:,s(1));
+    sig2 = handles.y3d(:,s(1));
+    sig3 = handles.x3d(:,s(2));
+    sig4 = handles.y3d(:,s(2));
+    sig5 = handles.x3d(:,s(3));
+    sig6 = handles.y3d(:,s(3));
+    sig7 = handles.x3d(:,s(4));
+    sig8 = handles.(4));
+    name1 = get_name(s(1));
+    name2 = name1;
+    name3 = get_name(s(2));
+    name4 = name3;
+    name5 = get_name(s(3));
+    name6 = name5;
+    name7 = get_name(s(4));
+
+    msas2_matt(sig1,sig2,sig3,sig4,sig5,sig6,sig7,sig8,name1,name2,name3,name4,name5,name6,name7);
+end
+    

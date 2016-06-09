@@ -1,0 +1,54 @@
+function [X,y]=DaveDFA_rh(dx)
+
+%% Dave' DFA adaption made by Rafael, more information see dfa.m
+
+nWinSizes = 100;
+
+
+x=cumsum(dx);
+nx = length(x);
+
+winMin = 4;
+winMax = round(nx / 2);
+
+nw = winMax - winMin + 1;
+if (nw < 8)
+	X = 1;
+    y=1;
+	return;
+end
+
+if (nw <= nWinSizes)
+	% Linearly spaced window sizes.
+	winSize = linspace(winMin, winMax, nw);
+else
+	% Logarithmically spaced window sizes.
+	winSize = unique(round(exp(linspace(log(winMin), log(winMax), nWinSizes))));
+	nw = length(winSize);
+end
+
+sigma = zeros(1, nw);
+
+% Loop over window sizes.
+for i = 1 : nw
+	nWin = floor(nx / winSize(i));
+	last = nWin * winSize(i);
+	xx = reshape(x(1:last), winSize(i), nWin);
+	abscissa = 1:winSize(i);
+	
+	% Least-squares detrending.
+	for j = 1 : nWin
+		yy = xx(:, j);
+		X = [ones(winSize(i), 1) abscissa'];	%'
+		a = X \ yy;
+		yfit = X * a;
+		
+		xx(:, j) = xx(:, j) - yfit;
+	end
+	
+	% RMS fluctuation for this window size.
+	sigma(i) = mean(sqrt(mean(xx.^2)));
+end
+
+X = log(winSize');
+y = log(sigma');

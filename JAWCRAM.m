@@ -1,0 +1,57 @@
+function JCP=JAWCRAM(P,JP,EPL,EPR,phij,thetaj)
+%
+% Method of decoupling jaw motion for 3D data proposed by Rafael H.,
+% ODL 08/2010
+%
+%inputs:1- P: positions of coils in a time instant, columm 1, 2 and 3
+%             should have the x, y and z positions of coils.
+%             exemple for instant to:
+%
+%                  P=[ Xcoil1(to) Ycoil1(to) Zcoil1(to);
+%                      Xcoil2(to) Ycoil1(to) Zcoil1(to);
+%                                    ...
+%                      XcoilN(to) YcoilN(to) ZcoilN(to)]
+%
+%       2- JP: 3 vector array containing position of jaw reference coil:
+%                 [Xjawcoil(to) Yjawcoil(to) Zjawcoil(to)]
+%
+%       3- EPL: 3 vector array containing position of left reference coil:
+%                 [Xlcoil(to) Ylcoil(to) Zlcoil(to)]
+%
+%       4- EPR: 3 vector array containing position of rigth reference coil:
+%                 [Xrcoil(to) Yrcoil(to) Zrcoil(to)]
+%
+%       5- phij: phi angle in degree of jaw reference coil in the time
+%                instant.
+%
+%       6- tethaj: tetha angle in degree of jaw reference coil in the time
+%                 instant.
+%
+%       Note: positions have to be low pass filtered, and angles unwraped
+%             and filtered with the seme low pass filter.
+%
+%output: JCP: positions of coils in a time instant. JCP have the same
+%             format than the correspondent input P.
+
+
+%shift the positions of coils acording the jaw reference coil
+Rx=(P(:,1)-JP(1));
+Ry=(P(:,2)-JP(2));
+Rz=(P(:,3)-JP(3));
+RelP=[Rx,Ry,Rz];
+
+%calculate the jaw's referencial vector axes
+[uxx,uxy,uxz]=sph2cart(phij,thetaj,1);
+if uxx<0
+    [uxx,uxy,uxz]=sph2cart(phij,thetaj,-1);
+end
+ux=[uxx;uxy;uxz]; %ux=[-cos(thetaj)*cos(phij); -cos(thetaj)*sin(phij); -sin(phij)];
+uyi=(EPL-EPR)';
+uzi=cross(ux,uyi);
+uz=uzi/norm(uzi);
+uy=cross(uz,ux);
+
+%calculate corrected position
+JCP=RelP*[ux,uy,uz];
+    
+end

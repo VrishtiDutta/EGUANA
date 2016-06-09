@@ -1,0 +1,119 @@
+function spectrumcheck_rh(x,xname,rate)
+
+hfig=figure;
+
+set(hfig,'color',[0.8 0.8 0.8],'name',[xname 'Power Spectrum'])
+
+uipanel('Title','Power Spectral Density','FontSize',12,...
+    'BackgroundColor',[0.93 0.93 0.93],'Units','Normalized',...
+    'Position',[.025 .35 .95 .60],'HighlightColor','b',...
+    'ForegroundColor','b');
+
+%% Openning Plot
+
+[C,f] = pwelch(x,[],[],[],rate);
+
+pl=axes('Units','Normalized','position',[0.15 0.45 0.75 0.4]);
+
+ob=plot(pl,f,C);
+xlabel('Frequency (Hz)'),ylabel('Power (s^2/Hz)');
+set(pl,'XScale','log','YScale','log')
+
+ll=1;
+pointl=1;
+
+uipanel('Title','Modify Display Settings','FontSize',12,...
+    'BackgroundColor',[0.93 0.93 0.93],'Units','Normalized',...
+    'Position',[.025 .075 .95 .250],'HighlightColor','b',...
+    'ForegroundColor','b');
+
+edit1v=uicontrol('Units','Normalized','Position',[0.15 0.12 .30 .07],...
+     'string','0 100','Style','edit',...
+     'callback',{@edit_interval_callback});
+ 
+edit2v=uicontrol('Units','Normalized','Position',[0.6 0.12 .30 .07],...
+     'string','auto','Style','edit',...
+     'callback',{@edit_scale_callback});
+ 
+uicontrol('Units','Normalized','Position',[0.15 0.2 .30 .07],...
+    'string','Interval Slection','Style','text',...
+    'BackgroundColor',[0.93 0.93 0.93])
+
+uicontrol('Units','Normalized','Position',[0.6 0.2 .30 .07],...
+    'string','Scale','Style','text','BackgroundColor',[0.93 0.93 0.93])
+
+uicontrol('Units','Normalized','Position',[0.90 0.95 .1 .05],...
+    'string','Reset','callback',{@reset_callback});
+
+uicontrol('Units','Normalized','Position',[0.50 0.95 .15 .05],...
+    'string','point/line','callback',{@pointline_callback});
+
+uicontrol('Units','Normalized','Position',[0.70 0.95 .15 .05],...
+    'string','lin/log','callback',{@linearlog_callback});
+
+uicontrol('Units','Normalized','Position',[0.4,0,0.2,0.05],...
+    'String','Continue','Callback','uiresume(gcbf)');
+ 
+    function edit_interval_callback(source, eventdata)
+        
+        ins = eval(['[' get(edit1v,'String') ']']);
+        
+        if(~(((isnan(ins(1))||~isreal(ins(1))||isnan(ins(2))||~isreal(ins(2))))...
+                || ((size(ins,1)~= 1 || size(ins,2)~=2)) || (ins(1)>ins(2))))
+            
+                       
+            set(pl,'xlim',[ins(1) ins(2)])
+                        
+        end
+    end
+
+    function edit_scale_callback(source, eventdata)
+        
+        ins = eval(['[' get(edit2v,'String') ']']);
+               
+        if(~(((isnan(ins(1))||~isreal(ins(1))||isnan(ins(2))||~isreal(ins(2))))...
+                || ((size(ins,1)~= 1 || size(ins,2)~=2)) || (ins(1)>ins(2))))
+                                   
+            set(pl,'ylim',[ins(1) ins(2)])
+                        
+        end
+    end
+
+    function reset_callback(source, eventdata)
+        
+        ob=plot(pl,f,C);
+        xlabel('Frequency (Hz)'),ylabel('Power (s^2/Hz)');
+        set(pl,'XScale','log','YScale','log')
+        
+        set(edit1v,'string','0 100')
+        set(edit2v,'string','auto')
+        
+        ll=1;
+        pointl=1;
+
+    end
+
+    function linearlog_callback(source, eventdata)
+        if(ll)
+            set(pl,'XScale','linear','YScale','linear')
+            ll=0;
+        else
+            set(pl,'XScale','log','YScale','log')
+            ll=1;
+        end
+    end
+
+    function pointline_callback(source, eventdata)
+        if(pointl)
+            set(ob,'Marker','.','LineStyle','none')
+            pointl=0;
+        else
+            set(ob,'LineStyle','-','Marker','none')
+            pointl=1;
+        end
+    end
+
+uiwait(hfig); 
+close(hfig);
+
+end

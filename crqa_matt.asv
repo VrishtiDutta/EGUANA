@@ -1,0 +1,270 @@
+function [delay, embed, radius, rescaletype, minline, numrecurs, numlines, percentrecurs, pdeter, entropy, RelEnt, maxline, meanline] = crqa_matt(data1, data2,FileName1,FileName2,ami1,fnn1,rad1)
+
+[n,m]=size(data1);
+if m~=1
+    disp('Your data must consist of a single column of data.  Press any key to quit');
+    pause;
+    return
+end
+
+
+[n,m]=size(data2);
+if m~=1
+    disp('Your data must consist of a single column of data.  Press any key to quit');
+    pause;
+    return 
+end
+
+if length(data1)~=length(data2)
+    shortest=min([length(data1) length(data2)]);
+    data1=data1(1:shortest);
+    data2=data2(1:shortest);
+end
+
+    %disp([FileName1 ' ' FileName2])
+
+
+
+colordef white;
+p={ 'Please enter the delay to use for embedding (AMI):',...
+    'Please enter the number of embedding dimensions to use (FNN):',....
+    'How would you like to rescale your distances? 1=Mean Dist, 2 = Max Dist: ',...
+    'What % of the Max Distance would you like to use for a radius (CRQALog20)?:',...
+    'How would you like to rescale your source data? 1=Unit Inteval, 2 = Zscore:'}; 
+
+def = {int2str(ami1),int2str(fnn1),'1',int2str(rad1),'2'};
+
+t='CRQA <Cross Recurrence Plot>';
+r=inputdlg(p,t,1,def);
+
+
+if ~isempty(r)
+   delay=abs(eval(r{1}));
+   embed=abs(eval(r{2}));
+   
+   while (rescale ~=1) & (rescale~= 2)
+   rescale=abs(eval(r{3}));
+   end
+
+   switch rescale
+       case 1 
+           radius=abs(eval(r{4}));
+           rescaletype='Mean Distance';
+       case 2
+            radius=abs(eval(r{4}));
+           rescaletype='Maximum Distance';
+   end
+
+   normalize=abs(eval(r{5}));
+
+  switch normalize
+    case 1
+        data1=(data1-min(data1));
+        data1=data1./max(data1);
+        data2=(data2-min(data2));
+        data2=data2./max(data2);
+
+    case 2
+        data1=zscore(data1);data2=zscore(data2);
+  end  %End switch
+  
+
+end
+
+counter=0;
+wb = waitbar(counter,'Computing Recurrence Matrix. Please wait...');
+
+clear euclid
+[rows,cols]=size(data1);
+%delay=round(get(delaybar,'value'));set(delaybar,'value',delay)
+%embed=round(get(dimbar,'value'));set(dimbar,'value',embed)
+%radius=round(get(radiusbar,'value'));set(radiusbar,'value',radius)
+
+counter=counter+.1;
+waitbar(counter,wb);
+
+%disp(['Creating vectors']);tic
+%Create surrogate dimension data vectors
+for loop=1:embed
+    vectorstart=(loop-1).*delay+1;
+    vectorend=rows-((embed-loop).*delay);
+    eval(['v1' num2str(loop) '=data1(' num2str(vectorstart) ':' num2str(vectorend) ');']);
+end %embedding loop
+
+for loop=1:embed
+    vectorstart=(loop-1).*delay+1;
+    vectorend=rows-((embed-loop).*delay);
+    eval(['v2' num2str(loop) '=data2(' num2str(vectorstart) ':' num2str(vectorend) ');']);
+end %embedding loop
+
+%plot3(vector1,vector2,vector3)
+
+counter=counter+.1;
+waitbar(counter,wb);
+
+%Create matrix from vectors to use for distance matrix calcs
+for loop=1:embed
+    if loop==1
+        dimdata1=v11;
+    else
+        eval(['dimdata1=[dimdata1 v1' num2str(loop) '];']);
+    end %End if statement
+end %loop loop
+
+for loop=1:embed
+    if loop==1
+        dimdata2=v21;
+    else
+        eval(['dimdata2=[dimdata2 v2' num2str(loop) '];']);
+    end %End if statement
+end %loop loop
+
+dimdata=[dimdata1;dimdata2];
+
+counter=counter+.1;
+waitbar(counter,wb);
+
+%Calculate Euclidean Distance Matrix dm
+
+[vlength,columns]=size(v11);
+
+%Compute euclidean distance matrix
+dmtemp=squareform(pdist(dimdata));
+
+dm=dmtemp(1:vlength,vlength+1:2*vlength);
+
+counter=counter+.1;
+waitbar(counter,wb);
+
+%disp(['Finding distances within radius']);tic
+%Find indeces of the distance matrix that fall within prescribed radius.
+switch rescale
+    case 1
+        %Create a distance matrix that is re-scaled to the mean distance
+        rescaledist=mean(mean(dm)');
+        dmrescale=(dm./rescaledist).*100;
+    case 2
+        %Create a distance matrix that is re-scaled to the max distance
+        rescaledist=max(max(dm)');
+        dmrescale=(dm./rescaledist).*100;
+end%End switch rescale
+
+%Compute recurrence matrix
+[r,c]=find(dmrescale<=radius);
+
+S=sparse(r,c,1);  
+
+
+
+[B,d]=spdiags(S);
+
+counter=counter+.1;
+waitbar(counter,wb);
+
+
+numrecurs=nnz(B);
+percentrecurs=(numrecurs./((vlength.^2))).*100;
+
+counter=counter+.1;
+waitbar(counter,wb);
+
+clear lines
+
+
+
+% 
+% 
+% 
+%     
+ 
+%% COMPUTING THE LINE COUNTS
+minline=2; % set a minimum line length, this can become an option.
+
+% This section finds the index of the zeros in the matrix B,
+% which contains the diagonals of one triangle of the recurrence matrix
+% (the idenity line excluded). The find command indexes the matrix sequentially
+% from 1 to the total number of elements. The element numbers for a 2X2 matrix
+% would be [1 3; 2 4]. You get a hit for every zero. If you take the
+% difference of the resulting vector, minus 1, it yields the length of an
+% interceding vector of ones, a line. Here is an e.g. using a row vector
+% rather than a col. vector, since it types easier: B=[0 1 1 1 0], a line of
+% length 3.  find(B==0) yields [1 5], diff([1 5])-1=3, the line length. So
+% this solution finds line lengths in the interior of the B matrix, BUT
+% fails if a line butts up against either edge of the B matrix, e.g. say
+% B=[0 1 1 1 1], find(B==0) returns a 1, and you miss the line of length 4.
+% A solution is to "bracket" B with a row of zeros at each top and bottom.
+
+%"Bracket B with zeros"
+B=[zeros(1,size(B,2)); B ; zeros(1,size(B,2))];
+%Get list of line lengths, sorted from largest to smallest
+lines=sort(diff(find(B==0))-1,'descend');
+
+%Delete line counts less than the minimum.
+lines(lines<minline)=[]; %lines(lines>200)=[]; % Can define a maximum line length too.
+numlines=length(lines);
+maxline=max(lines);
+meanline=mean(lines);
+    
+   
+    
+%% COMPUTE ENTROPY, USE LOG BASE 2, DIVIDE BY MAX ENTROPY TO GET RELATIVE
+%  ENTROPY
+    [count,bin]=hist(lines,minline:maxline);
+    total=sum(count);
+    p=count./total;
+    del=find(count==0); p(del)=[];
+    entropy=-1*sum(p.*log2(p));
+    % Transform to relative entropy: entropy/max entropy
+    % More comparable across contexts and conditions.
+    RelEnt=entropy/(-1*log2(1/length(bin)));
+
+%% COMPUTE PERCENT DETERMINISM
+    pdeter=(sum(lines)/numrecurs)*100;
+    
+
+
+
+
+
+string={['%rec=' num2str(percentrecurs)],
+    ['%det=' num2str(pdeter)],
+    ['maxline=' num2str(maxline)]};
+
+string={['Delay=' num2str(delay)],
+    ['# Embedding Dimensions=' num2str(embed)],
+    ['Radius = ' num2str(radius) '% ' rescaletype],
+    ['Line Length (min) =' num2str(minline) ' Recurrent Points'],
+    ['# Recurrent Points = ' num2str(numrecurs)],
+    ['# Lines = ' num2str(numlines)],
+    ['%REC = ' num2str(percentrecurs)],
+    ['%DET = ' num2str(pdeter)],
+    ['ENTROPY = ' num2str(entropy)],
+    ['RELATIVE ENTROPY = ' num2str(RelEnt)],
+    ['MAXLINE = ' num2str(maxline)],
+    ['MEANLINE = ' num2str(meanline)]};
+
+counter=counter+.1;
+waitbar(counter,wb);
+
+close(wb)
+
+figure
+set(gcf,'units','normalized','position',[0 0 1 .93],'toolbar','figure','menubar','none','name','CRQA')
+subplot(2,2,1);plot(data1);hold;plot(data2,'r');hold;xlabel('data point');ylabel('x');title(['Time series ' FileName1 '=Blue ' FileName2 '=Red']);
+subplot(2,2,2);viewangle=get(gca,'cameraposition');
+if embed==1
+    spaceplot=plot(v11);hold;plot(v21,'r');hold;xlabel('data point');ylabel('x');title(['Reconstructed Phase Space for ' FileName1 ' & ' FileName2]);
+elseif embed==2
+    spaceplot=plot(v11,v12);hold;plot(v21,v22,'r');hold;xlabel('x(t)');ylabel('x(t + tau)');title(['Reconstructed Phase Space for ' FileName1 ' & ' FileName2])
+else
+    plot3(v11,v12,v13);hold,plot3(v21,v22,v23,'r');hold;xlabel('x(t)');ylabel(['x(t + ' int2str(delay) ')']);zlabel(['x(t + ' int2str(2.*delay) ')']);title(['Reconstructed Phase Space for ' FileName1 ' & ' FileName2]);rotate3d
+end
+subplot(2,2,3);recplot=plot(r,c,'.m','MarkerSize',0.2,'MarkerEdgeColor',[1 .5 .2]);xlim([1 vlength]);ylim([1 vlength]);axis square;xlabel('i');ylabel('j');title(['Recurrence Plot of ' FileName1 ' & ' FileName2])
+
+subplotdims=[.41 .4];
+outbox=uicontrol('style','text','units','normalized','position',[0.55 0.1 subplotdims],'fontsize',13,'backgroundcolor',[.8 .8 .8]);
+set(outbox,'string',string)
+
+drawnow
+
+
